@@ -85,6 +85,7 @@
 #include "ai.h"
 #include "advvis.h"
 #include "loadsave.h"
+//#include "edit3d.h"
 
 #define FAKE_REF_LASSAT 999
 #define ALL_PLAYERS -1
@@ -1968,6 +1969,9 @@ static DROID_TEMPLATE *makeTemplate(int player, const QString &templName, QScrip
 		return nullptr;
 	}
 }
+
+
+
 
 //-- ## addDroid(player, x, y, name, body, propulsion, reserved, reserved, turrets...)
 //--
@@ -5004,6 +5008,59 @@ static QScriptValue js_fireWeaponAtObj(QScriptContext *context, QScriptEngine *e
 	return QScriptValue();
 }
 
+static QScriptValue js_raiseTileHeight(QScriptContext *context, QScriptEngine *engine)
+{
+	int x = context->argument(0).toInt32();
+	int y = context->argument(1).toInt32();
+	int32_t scale = context->argument(2).toInt32();
+	
+	int32_t h = map_TileHeight(x, y) + scale;
+	
+	setTileHeight(x, y, h);
+
+	return QScriptValue::NullValue;
+}
+
+static QScriptValue js_lowerTileHeight(QScriptContext *context, QScriptEngine *engine)
+{
+	int x = context->argument(0).toInt32();
+	int y = context->argument(1).toInt32();
+	int32_t scale = context->argument(2).toInt32();
+	
+	int32_t h = map_TileHeight(x, y) - scale;
+	
+	setTileHeight(x, y, h);
+
+	return QScriptValue::NullValue;
+}
+static QScriptValue js_setTileHeight(QScriptContext *context, QScriptEngine *engine)
+{
+	int x = context->argument(0).toInt32();
+	int y = context->argument(1).toInt32();
+	int h = context->argument(2).toInt32();
+
+	setTileHeight(x, y, h);
+
+	return QScriptValue::NullValue;
+}
+
+static QScriptValue js_getTileHeight(QScriptContext *context, QScriptEngine *engine)
+{
+	int x = context->argument(0).toInt32();
+	int y = context->argument(1).toInt32();
+
+	int32_t h = map_TileHeight(x, y);
+
+	return QScriptValue(h);
+}
+
+static QScriptValue js_getTileMousePos(QScriptContext *context, QScriptEngine *engine)
+{
+	QScriptValue mouse = engine->newObject();
+	mouse.setProperty("x", mouseTileX);
+	mouse.setProperty("y", mouseTileY);
+	return QScriptValue(mouse);
+}
 //-- ## changePlayerColour(player, colour)
 //--
 //-- Change a player's colour slot. The current player colour can be read from the ```playerData``` array. There are as many
@@ -6264,6 +6321,13 @@ bool registerFunctions(QScriptEngine *engine, const QString& scriptName)
 	engine->globalObject().setProperty("fireWeaponAtLoc", engine->newFunction(js_fireWeaponAtLoc));
 	engine->globalObject().setProperty("fireWeaponAtObj", engine->newFunction(js_fireWeaponAtObj));
 
+	//For modding and prettiness
+	engine->globalObject().setProperty("riseTileHeight", engine->newFunction(js_lowerTileHeight));
+	engine->globalObject().setProperty("lowerTileHeight", engine->newFunction(js_lowerTileHeight));
+	engine->globalObject().setProperty("setTileHeight", engine->newFunction(js_setTileHeight));
+	engine->globalObject().setProperty("getTileHeight", engine->newFunction(js_getTileHeight));
+	engine->globalObject().setProperty("getTileMousePos", engine->newFunction(js_getTileMousePos));
+	
 	// Set some useful constants
 	engine->globalObject().setProperty("TER_WATER", TER_WATER, QScriptValue::ReadOnly | QScriptValue::Undeletable);
 	engine->globalObject().setProperty("TER_CLIFFFACE", TER_CLIFFFACE, QScriptValue::ReadOnly | QScriptValue::Undeletable);

@@ -90,7 +90,20 @@ void lowerTile(int tile3dX, int tile3dY)
 		}
 	}
 }
+/*
+void	setTileHeight(int tile3dX, int tile3dY, int32_t newHeight)
+{
+//	int32_t newHeight = psTile->height + adjust * ELEVATION_SCALE;
+	MAPTILE	*psTile;
+	psTile = mapTile(tile3dX, tile3dY);
 
+
+	if (newHeight >= newHeight && newHeight <= newHeight)
+	{
+		psTile->height = newHeight;
+	}
+}
+*/
 /* Ensures any adjustment to tile elevation is within allowed ranges */
 void	adjustTileHeight(MAPTILE *psTile, SDWORD adjust)
 {
